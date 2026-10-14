@@ -7,8 +7,10 @@
 - **Plans before it builds.** A brief with goals and assumptions, and a task graph where each task has acceptance criteria and the tests that prove it.
 - **Tests decide.** Coders write tests first, and a failing task goes to a fixer agent, up to three tries.
 - **Your team, your choice.** Pick the Director, the coders (one, or several taking turns) and the fixer, and change them mid-run.
-- **Pick the model.** Choose each agent's model and reasoning effort from its live model list, and change them mid-run.
-- **Connectors and plugins.** Give agents MCP servers (docs lookup, GitHub and more, with one-click presets) and manage each CLI's plugins from the dashboard.
+- **Pick the model.** Choose each agent's model and reasoning effort from its live model list, and change them mid-run. Models your plan doesn't include are detected and marked, and runs fall back to the default automatically.
+- **Extensions, like VS Code.** Browse and install thousands of plugins from each agent's own marketplace: Claude's official directory, Copilot's awesome-copilot, and Codex's catalog.
+- **Connectors.** Search the official MCP Registry and add servers (GitHub, databases, docs lookup and more) in one click.
+- **Your projects, your editor.** Choose where projects are saved, open any project in VS Code with one click, and delete runs you don't need.
 - **Serial or parallel.** Independent tasks can be built side by side, each in its own git branch, and merged when green.
 - **See everything.** A live task graph, each agent's output, diffs, the brief and report in a full-screen reader, and a token dashboard showing what each agent used.
 - **Safe by default.** Agents work inside a Docker container that only sees your projects folder. See [SECURITY.md](SECURITY.md).
@@ -40,6 +42,7 @@ curl -fsSL https://raw.githubusercontent.com/MVSanjayNiranjan/conclave/main/inst
 
 The installer:
 - checks Docker
+- asks where to save your projects (default: a `workspace` folder inside `conclave`)
 - downloads Conclave into a `conclave` folder in your home directory
 - starts it
 - installs the three agent CLIs from their official sources
@@ -79,7 +82,8 @@ docker compose exec conclave copilot login --device-code
 1. Click **New run**.
 2. Describe the project, for example *"Build a Python CLI that converts CSV to JSON, with pytest tests"*.
 3. Pick the team and the build mode (Serial, or Parallel ×2), and start.
-4. Watch it work. The project appears in `conclave/workspace/<name>` on your computer as a normal git repository, with one commit per step.
+4. Watch it work. The project appears in your projects folder as a normal git repository, with one commit per step. Leave the folder name blank and Conclave names it from your prompt (for example `ledger`).
+5. When it's done, click **Open in VS Code** under the title to run, debug or edit it.
 
 The roles bar changes the team for the next step, even mid-run. Its **Models** button sets each agent's model and reasoning effort. The lists come live from each CLI: Codex shows the effort levels each model supports, and Copilot lists every model your plan offers. Click a task in the graph to see its tests, its diff, pin it to a specific coder, retry it or skip it.
 
@@ -104,21 +108,44 @@ The **token panel** shows tokens for this run, the last 7 days or all time:
 - Claude's reported cost
 - Copilot's premium requests
 
-## Connectors and plugins
+## Extensions and connectors
 
-**Connectors** are MCP servers that give agents extra tools. Open the plug icon in the activity bar:
-- Add one from a preset: **Context7** docs, **Sequential thinking**, **Memory** or **GitHub**. Or add your own as a command, such as `npx some-mcp@1.2.3`, or as an `https://` URL.
-- Choose which agents get each connector, and switch it on or off at any time. Changes apply from the next agent step.
-- API keys and tokens go in the connector's secret fields. They're stored locally, never shown again, and never written to logs.
+**Extensions** (puzzle icon) work like VS Code's Extensions view:
+- Pick an agent (Claude, Codex or Copilot) and search its marketplaces.
+- Click **Install** or **Uninstall**, or open an extension to see its details and source.
+- Add more marketplaces at the bottom of the list.
 
-**Plugins**: open the puzzle icon. For each agent:
-- see its installed plugins
-- install or uninstall by name (for example `name@marketplace`)
-- add a marketplace
+Extensions are installed with each CLI's own `plugin` command, so they behave exactly as they do in that CLI, and they load in every later agent step.
 
-This uses each CLI's own `plugin` command, so the plugins work just as they do in that CLI.
+**Connectors** (plug icon) are MCP servers that give agents extra tools:
+- **Marketplace** tab: search the official MCP Registry and click **Add**. The form comes prefilled with the pinned package and the settings it needs. Fill in any keys it asks for.
+- **Installed** tab: switch connectors on or off, choose which agents get each one, or start from a recommended preset (Context7 docs, Sequential thinking, Memory, GitHub).
+- API keys and tokens are stored locally, never shown again, and never written to logs.
 
-Connectors and plugins can run code inside the container. Add only ones you trust, and pin versions.
+Extensions and connectors are third-party code that runs inside the container. Add only ones you trust, and check the source link.
+
+## Your projects
+
+- **Where they're saved:** the folder you chose during install. Settings (gear icon) shows it.
+- **Open in VS Code:** the link under each run's title, or **⋯ → Open in VS Code** in the Runs list. Use VS Code's terminal to run the project; the brief's "How to run" section has the commands.
+- **Delete:** **⋯ → Delete…** in the Runs list. You can remove the run from the dashboard and keep its files, or delete the project folder too (you'll be asked to type its name).
+- **Change the folder:** edit `.env` next to `docker-compose.yml`:
+
+```
+CONCLAVE_WORKSPACE_DIR=D:/Projects
+CONCLAVE_HOST_WORKSPACE=D:/Projects
+```
+
+Then run `docker compose up -d`. Agents can only see this folder, so don't choose one with private files.
+
+## Choosing models
+
+Open **Models** in the roles bar (or in New run) to set each agent's model and reasoning effort. The lists come from each CLI.
+
+The CLIs can't tell Conclave which models your plan includes. So:
+- **Check** next to a model asks the CLI whether it works for you (one tiny request).
+- If a run uses a model your plan doesn't include, Conclave notices, marks it **not on your plan**, and switches that step to the default model.
+- If a model doesn't take a reasoning effort (like Copilot's **Auto**), the effort setting is disabled and never sent.
 
 ## Everyday commands
 
@@ -157,6 +184,9 @@ wsl --install --web-download --no-distribution
 - **Port 7700 is already in use.** In `docker-compose.yml`, change `127.0.0.1:7700:7700` to `127.0.0.1:7800:7700` and open http://localhost:7800.
 - **An agent says it isn't signed in.** Run its sign-in command from [Install](#install) again.
 - **A run stopped on a usage limit.** It pauses and resumes when you click **Resume** after the limit resets.
+- **You deleted the Docker container.** Nothing is lost: projects, logins and history live outside it. Run `docker compose up -d` to recreate it. Only `docker compose down -v` (with `-v`) deletes logins and history.
+- **A model shows "not on your plan".** Pick another model, or choose **Default model**.
+- **Open in VS Code does nothing.** Install VS Code, and check that Settings shows your projects folder. If it doesn't, add `CONCLAVE_HOST_WORKSPACE` to `.env` as shown above.
 
 ## Security
 

@@ -20,9 +20,18 @@ docker compose version *> $null
 if ($LASTEXITCODE -ne 0) { Fail "Your Docker has no 'docker compose'. Update Docker Desktop and run this again." }
 
 Say "Installing Conclave into $Dir"
-New-Item -ItemType Directory -Force -Path (Join-Path $Dir 'workspace') | Out-Null
+New-Item -ItemType Directory -Force -Path $Dir | Out-Null
 Set-Location $Dir
 Invoke-WebRequest -UseBasicParsing "$RepoRaw/docker-compose.yml" -OutFile 'docker-compose.yml'
+
+# Where projects go. Agents can only see this folder, so pick an empty or dedicated one.
+$DefaultWs = Join-Path $Dir 'workspace'
+$Ws = Read-Host "Folder for your projects [$DefaultWs]"
+if (-not $Ws) { $Ws = $DefaultWs }
+New-Item -ItemType Directory -Force -Path $Ws | Out-Null
+$Ws = (Resolve-Path $Ws).Path -replace '\\', '/'
+Set-Content -Path '.env' -Encoding ascii -Value "CONCLAVE_WORKSPACE_DIR=$Ws`nCONCLAVE_HOST_WORKSPACE=$Ws"
+Say "Projects will be saved in $Ws"
 
 Say 'Downloading Conclave (first time only, a few hundred MB)'
 docker compose pull
@@ -48,6 +57,6 @@ if (Ask 'Sign in to GitHub Copilot now?') { docker compose exec conclave copilot
 Say "Conclave is running at $Url"
 Start-Process $Url
 Write-Host ""
-Write-Host "  Your projects:  $Dir\workspace"
+Write-Host "  Your projects:  $Ws"
 Write-Host "  Stop:           cd $Dir; docker compose down"
 Write-Host "  Update:         cd $Dir; docker compose pull; docker compose up -d"

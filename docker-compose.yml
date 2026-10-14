@@ -2,6 +2,7 @@
 # Start:   docker compose up -d        then open http://localhost:7700
 # Update:  docker compose pull && docker compose up -d
 # Stop:    docker compose down          (your projects, logins and history are kept)
+# Projects folder: set CONCLAVE_WORKSPACE_DIR and CONCLAVE_HOST_WORKSPACE in .env (the installer does this).
 
 services:
   conclave:
@@ -16,9 +17,11 @@ services:
     environment:
       # The container is the sandbox for the agents (see SECURITY.md).
       CONCLAVE_CODEX_SANDBOX: container
+      # Where the projects folder is on this computer, for "Open in VS Code" (set in .env).
+      CONCLAVE_HOST_WORKSPACE: ${CONCLAVE_HOST_WORKSPACE:-}
     volumes:
       # Your projects appear here, next to this file.
-      - ./workspace:/workspace
+      - ${CONCLAVE_WORKSPACE_DIR:-./workspace}:/workspace
       # Sign in once; kept across restarts and updates.
       - claude-home:/home/node/.claude
       - codex-home:/home/node/.codex

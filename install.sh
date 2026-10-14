@@ -21,13 +21,24 @@ docker info >/dev/null 2>&1 || fail "Docker is installed but not running. Start 
 docker compose version >/dev/null 2>&1 || fail "Your Docker has no 'docker compose'. Update Docker Desktop and run this again."
 
 say "Installing Conclave into $DIR"
-mkdir -p "$DIR/workspace"
+mkdir -p "$DIR"
 cd "$DIR"
 curl -fsSL "$REPO_RAW/docker-compose.yml" -o docker-compose.yml
 
+# Where projects go. Agents can only see this folder, so pick an empty or dedicated one.
+DEFAULT_WS="$DIR/workspace"
+printf 'Folder for your projects [%s]: ' "$DEFAULT_WS"
+read -r WS </dev/tty || WS=""
+WS="${WS:-$DEFAULT_WS}"
+case "$WS" in "~"*) WS="$HOME${WS#\~}" ;; esac
+mkdir -p "$WS"
+WS="$(cd "$WS" && pwd)"
+printf 'CONCLAVE_WORKSPACE_DIR=%s\nCONCLAVE_HOST_WORKSPACE=%s\n' "$WS" "$WS" > .env
+say "Projects will be saved in $WS"
+
 if [ "$(uname -s)" = "Linux" ] && [ "$(id -u)" != "1000" ]; then
   say "Note: Conclave runs as user id 1000 inside the container; making $DIR/workspace writable for it."
-  chmod 777 "$DIR/workspace" 2>/dev/null || true
+  chmod 777 "$WS" 2>/dev/null || true
 fi
 
 say "Downloading Conclave (first time only, a few hundred MB)"
@@ -55,6 +66,6 @@ fi
 say "Conclave is running at $URL"
 ( command -v open >/dev/null 2>&1 && open "$URL" ) || ( command -v xdg-open >/dev/null 2>&1 && xdg-open "$URL" >/dev/null 2>&1 ) || true
 echo
-echo "  Your projects:  $DIR/workspace"
+echo "  Your projects:  $WS"
 echo "  Stop:           cd $DIR && docker compose down"
 echo "  Update:         cd $DIR && docker compose pull && docker compose up -d"
