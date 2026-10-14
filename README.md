@@ -7,6 +7,8 @@
 - **Plans before it builds.** A brief with goals and assumptions, and a task graph where each task has acceptance criteria and the tests that prove it.
 - **Tests decide.** Coders write tests first, and a failing task goes to a fixer agent, up to three tries.
 - **Your team, your choice.** Pick the Director, the coders (one, or several taking turns) and the fixer, and change them mid-run.
+- **Pick the model.** Choose each agent's model and reasoning effort from its live model list, and change them mid-run.
+- **Connectors and plugins.** Give agents MCP servers (docs lookup, GitHub and more, with one-click presets) and manage each CLI's plugins from the dashboard.
 - **Serial or parallel.** Independent tasks can be built side by side, each in its own git branch, and merged when green.
 - **See everything.** A live task graph, each agent's output, diffs, the brief and report in a full-screen reader, and a token dashboard showing what each agent used.
 - **Safe by default.** Agents work inside a Docker container that only sees your projects folder. See [SECURITY.md](SECURITY.md).
@@ -79,7 +81,7 @@ docker compose exec conclave copilot login --device-code
 3. Pick the team and the build mode (Serial, or Parallel ×2), and start.
 4. Watch it work. The project appears in `conclave/workspace/<name>` on your computer as a normal git repository, with one commit per step.
 
-The roles bar changes the team for the next step, even mid-run. Click a task in the graph to see its tests, its diff, pin it to a specific coder, retry it or skip it.
+The roles bar changes the team for the next step, even mid-run. Its **Models** button sets each agent's model and reasoning effort. The lists come live from each CLI: Codex shows the effort levels each model supports, and Copilot lists every model your plan offers. Click a task in the graph to see its tests, its diff, pin it to a specific coder, retry it or skip it.
 
 ## The dashboard
 
@@ -92,6 +94,7 @@ The layout works like VS Code:
 | `Ctrl+J` | Show or hide the agents panel |
 | `Alt+N` | New run |
 | `Alt+R` | Open the brief or report in the full-screen reader |
+| `Esc` | Close the reader or a dialog |
 | `?` | All shortcuts |
 
 Drag any divider to resize. Drag a panel past its edge to tuck it away, then bring it back with its shortcut. The layout is remembered.
@@ -100,6 +103,22 @@ The **token panel** shows tokens for this run, the last 7 days or all time:
 - broken down by agent, by role and by step, with a per-day chart
 - Claude's reported cost
 - Copilot's premium requests
+
+## Connectors and plugins
+
+**Connectors** are MCP servers that give agents extra tools. Open the plug icon in the activity bar:
+- Add one from a preset: **Context7** docs, **Sequential thinking**, **Memory** or **GitHub**. Or add your own as a command, such as `npx some-mcp@1.2.3`, or as an `https://` URL.
+- Choose which agents get each connector, and switch it on or off at any time. Changes apply from the next agent step.
+- API keys and tokens go in the connector's secret fields. They're stored locally, never shown again, and never written to logs.
+
+**Plugins**: open the puzzle icon. For each agent:
+- see its installed plugins
+- install or uninstall by name (for example `name@marketplace`)
+- add a marketplace
+
+This uses each CLI's own `plugin` command, so the plugins work just as they do in that CLI.
+
+Connectors and plugins can run code inside the container. Add only ones you trust, and pin versions.
 
 ## Everyday commands
 

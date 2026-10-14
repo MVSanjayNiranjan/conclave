@@ -13,6 +13,9 @@ Conclave runs AI coding agents that write and execute code on your machine. This
 | **Agent text** | Briefs, reports and logs written by agents are shown as text or sanitized markdown. Raw HTML is never rendered, so agent output can't run scripts in your browser. |
 | **Credentials** | Each CLI stores its own login token in its own Docker volume. Conclave never reads, copies or sends those tokens. Nothing is uploaded anywhere except what each agent CLI sends to its own provider. |
 | **Agent permissions** | **Claude Code:** edits and a fixed tool list are allowed, and anything else that would prompt is denied. **Copilot CLI:** path checks stay on, its built-in GitHub MCP server is disabled, and `git push` / `rebase` / `reset` are denied. **Codex:** uses its "externally sandboxed" mode only inside the container, and Conclave refuses that mode anywhere else. |
+| **Connector secrets** | API keys and tokens you give connectors are stored in Conclave's local database (its Docker volume). The API returns only their names, never their values. Each step gets them through a private file (mode 0600) that's deleted when the step ends. Where a CLI only takes them as arguments (Codex), they're masked as `***` in the raw logs. |
+| **Model choice** | Model ids and effort levels are checked against a strict allowlist before they reach a command line. |
+| **Plugins** | Each CLI's own `plugin` command is run with fixed arguments and no shell. Plugin names that could be read as flags or shell syntax are refused. |
 | **Git history** | Every agent step is a commit. A merge that breaks the tests is undone with a new revert commit; history is never rewritten. Nothing is pushed anywhere. |
 | **Supply chain** | The agent CLIs are installed from their official npm packages at pinned versions. The Conclave image is built in CI from a pinned base image. |
 
@@ -21,6 +24,8 @@ Conclave runs AI coding agents that write and execute code on your machine. This
 - **Your projects are writable by agents.** Anything inside `./workspace` can be changed or deleted by an agent. Keep important work in git and pushed somewhere else.
 - **Network access is on**, because agents need package registries. A misbehaving agent could download things or contact websites from inside the container.
 - **Agents send your project code to their providers** (Anthropic, OpenAI, GitHub) as part of normal operation, under each provider's terms. Don't put secrets you can't share with those providers in `./workspace`.
+- **Connectors and plugins run code.** An MCP server or plugin runs inside the container with the agents' access. A malicious one could read or change your projects or use the network. Add only ones you trust, and pin versions.
+- **Connector secrets are not encrypted at rest.** They sit in the local database inside the Docker volume. Anyone who can read that volume can read them. Use tokens with the least access you can.
 - **The dashboard has no login.** Anyone who can use your computer's browser can use it. Don't change the port binding to `0.0.0.0` on a shared or untrusted network.
 - **Docker itself.** The container is a strong boundary, but not a virtual machine. Keep Docker Desktop updated.
 
