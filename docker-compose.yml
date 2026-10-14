@@ -1,0 +1,36 @@
+# Conclave: https://github.com/MVSanjayNiranjan/conclave
+# Start:   docker compose up -d        then open http://localhost:7700
+# Update:  docker compose pull && docker compose up -d
+# Stop:    docker compose down          (your projects, logins and history are kept)
+
+services:
+  conclave:
+    image: ghcr.io/mvsanjayniranjan/conclave:latest
+    container_name: conclave
+    restart: unless-stopped
+    stdin_open: true
+    tty: true
+    ports:
+      # This machine only: the dashboard has no login.
+      - "127.0.0.1:7700:7700"
+    environment:
+      # The container is the sandbox for the agents (see SECURITY.md).
+      CONCLAVE_CODEX_SANDBOX: container
+    volumes:
+      # Your projects appear here, next to this file.
+      - ./workspace:/workspace
+      # Sign in once; kept across restarts and updates.
+      - claude-home:/home/node/.claude
+      - codex-home:/home/node/.codex
+      - copilot-home:/home/node/.copilot
+      # Agent CLIs, installed on first start from their official sources.
+      - cli-tools:/opt/conclave-tools
+      # Run history.
+      - conclave-data:/data
+
+volumes:
+  claude-home:
+  codex-home:
+  copilot-home:
+  cli-tools:
+  conclave-data:

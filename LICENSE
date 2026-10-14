@@ -1,0 +1,42 @@
+Conclave Free Use License
+Copyright (c) 2026 Sanjay Niranjan (github.com/MVSanjayNiranjan). All rights reserved.
+
+1. Grant. You may download, install and use the Conclave software ("the Software") in the
+   form published by the copyright holder (the Docker image and the files in the public
+   Conclave repository), free of charge, for personal or commercial purposes, on machines you
+   control.
+
+2. Restrictions. Except as expressly allowed in section 1, you may not:
+   a. copy, modify, translate or create derivative works of the Software;
+   b. decompile, disassemble, de-minify or otherwise reverse-engineer the Software, or attempt
+      to derive its source code, except to the extent applicable law expressly permits this
+      despite this restriction;
+   c. redistribute, sublicense, sell, rent, lease or host the Software for others, including
+      as a hosted or managed service;
+   d. remove or alter any copyright, license or attribution notices.
+
+3. Third-party software. The Software starts and controls third-party tools that it installs
+   from their official sources on your machine (including Anthropic Claude Code, OpenAI Codex
+   CLI and GitHub Copilot CLI). Those tools are not part of the Software, are governed by their
+   own licenses and terms, and you must have your own accounts and subscriptions for them.
+   Conclave uses only your own accounts; you may not use it to give other people access to
+   your subscriptions.
+
+4. Your projects. Code, documents and other output created in your projects with the Software
+   belong to you, subject to the terms of the third-party tools that produced them.
+
+5. No warranty. THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+   IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A
+   PARTICULAR PURPOSE AND NONINFRINGEMENT. The Software runs AI agents that write and execute
+   code on your machine inside a container; review what they produce before relying on it.
+
+6. Limitation of liability. IN NO EVENT SHALL THE COPYRIGHT HOLDER BE LIABLE FOR ANY CLAIM,
+   DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+   FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR ITS USE, INCLUDING ANY COSTS INCURRED
+   WITH THIRD-PARTY SERVICES.
+
+7. Termination. This license ends automatically if you break its terms. On termination you
+   must stop using the Software and delete your copies.
+
+For permissions beyond this license, open an issue at
+https://github.com/MVSanjayNiranjan/conclave/issues.
